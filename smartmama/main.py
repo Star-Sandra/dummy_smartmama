@@ -9,7 +9,7 @@ from fastapi import FastAPI
 
 # 1. ABSOLUTE PATH IMPORTS (CLEARS THE PYLANCE RESOLUTION ERROR)
 from smartmama.database import engine, Base
-import smartmama.models  # Wakes up your new models/__init__.py file!
+
 
 # 2. ABSOLUTE ROUTER MATRIX IMPORTS
 from smartmama.routers import auth_router, chv_router, location_router, mother_router, visit_router

@@ -1,24 +1,44 @@
+import uuid
+from datetime import date
 from sqlalchemy.orm import Session
 from smartmama.models.visit_log import VisitLog
 from smartmama.schemas.visit_log import VisitLogCreate
 
-class VisitRepository:
-    @staticmethod
-    def create_visit_log(db: Session, obj_in: VisitLogCreate) -> VisitLog:
-        """
-        Takes validated Pydantic data, stages it for insertion, 
-        and allows PostgreSQL to trigger its automated server defaults.
-        """
-        db_obj = VisitLog(                 #database object
-            mother_id=obj_in.mother_id,
-            pregnancy_id=obj_in.pregnancy_id,
-            weight=obj_in.weight,
-            gestational_age=obj_in.gestational_age,
-            systolic_bp=obj_in.systolic_bp,
-            diastolic_bp=obj_in.diastolic_bp,
-            logged_symptoms=obj_in.logged_symptoms
-        )
-        db.add(db_obj)       # Stage the data in the current DB session
-        db.commit()          # Write the record permanently and fire server-side defaults
-        db.refresh(db_obj)   # Pull back auto-generated values from PostgreSQL
-        return db_obj
+class VisitLogRepository:
+    def __init__(self):
+       self.model = VisitLog
+
+    def create_visit_log(self, db: Session, obj_in: VisitLogCreate) -> VisitLog:
+        """Saves a brand new independent maternal checkup record row."""
+        visit_data = obj_in.model_dump()
+        visit_data["visit_id"] = uuid.uuid4()
+        visit_data["visit_date"] = date.today()
+        db_record = VisitLog(**visit_data)
+        db.add(db_record)
+        db.commit()
+        db.refresh(db_record)
+        return db_record
+
+    def get_by_mother_id(self, db: Session, mother_id: uuid.UUID):
+        """Fetches historical logs chronologically via instance lookup."""
+        return db.query(self.model).filter(
+            self.model.mother_id == mother_id
+        ).order_by(self.model.visit_date.desc()).all()
+
+    def check_duplicate_today(self, db: Session, mother_id: uuid.UUID, current_date: date) -> VisitLog:
+        """Checks for duplicate daily entries."""
+        return db.query(self.model).filter(
+            self.model.mother_id == mother_id,
+            self.model.visit_date == current_date
+        ).first()
+
+
+visit_repo = VisitLogRepository()
+
+
+
+
+
+
+
+    

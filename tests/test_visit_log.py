@@ -41,7 +41,7 @@ def integrated_mother_payload(baseline_payload):
     return baseline_payload
 
 class TestMaternalVisitLoggingPipeline:    
-    ENDPOINT_URL = f"{API_V1_PREFIX}/visits/log"
+    ENDPOINT_URL = f"{API_V1_PREFIX}/visits"
 
 # ML INTELLIGENCE & CLINICAL CLASSIFICATION TEST CASES
     @pytest.mark.parametrize("systolic, diastolic, symptoms, expected_risk", [

@@ -1,10 +1,10 @@
 import uuid
 from datetime import date
 from typing import List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
-class VisitLogCreate(BaseModel):
+class VisitLogBase(BaseModel):
     mother_id: uuid.UUID = Field(
         ..., 
         description="References the mother being visited."
@@ -42,14 +42,49 @@ class VisitLogCreate(BaseModel):
         max_length=1000, 
         description="The mother's captured symptoms"
     )
+    
+class VisitLogCreate(VisitLogBase):
+    """When want to create a new visit log (Inherits all baseline metrics automatically)."""
+    pass
      
 
 class VisitLogResponse(BaseModel):
-    visit_id: uuid.UUID = Field(..., description="Unique identifier for each household visit.")
-    visit_date: date = Field(..., description="Date when the household visit was conducted.")
-    risk_level: str = Field(..., description="The calculated Random Forest classification result.")
-    recommendations: List[str] = Field(..., description="Actionable clinical steps for the CHV to follow.")
+    """The immediate receipt return contract after form logging."""
+    model_config = ConfigDict(from_attributes=True)
+    visit_id: uuid.UUID = Field(
+        ..., 
+        description="Unique identifier for each household visit."
+    )
+    visit_date: date = Field(
+        ..., 
+        description="Date when the household visit was conducted."
+    )
+    risk_level: str = Field(
+        ..., 
+        description="The calculated Random Forest classification result."
+    )
+    recommendations: List[str] = Field(
+        ..., 
+        description="Actionable clinical steps for the CHV to follow."
+    )
+    
+class HistoricalVisitSummary(VisitLogBase):
+    """ Inherits raw vitals from Base, but adds backend output calculations."""
+    model_config = ConfigDict(from_attributes=True)
+    
+    visit_id: uuid.UUID
+    visit_date: date
+    risk_level: str
+    recommendations: List[str]
+class MotherVisitHistoryResponse(BaseModel):
+    """Master overview container package for your frontend partner's dashboards."""
+    model_config = ConfigDict(from_attributes=True) 
+    mother_name: str
+    current_risk: str
+    ai_confidence: str
+    last_visit_description: str
+    total_visits_logged: int
+    history: List[HistoricalVisitSummary]   
 
-    class Config:
-        from_attributes = True
 
+   

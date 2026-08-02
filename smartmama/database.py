@@ -35,3 +35,14 @@ SessionLocal = sessionmaker(
 
 # Declarative base class mapping blueprints to active database tables
 Base = declarative_base()
+#star-sandra added this
+def get_db():
+    """
+    Dependency generator function that yields a secure local database session wire 
+    to API routers and guarantees it is cleanly closed after the request wraps up.
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
