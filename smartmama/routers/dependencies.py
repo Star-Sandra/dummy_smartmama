@@ -9,7 +9,7 @@ from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from smartmama.core.config import settings
-from database import SessionLocal
+from smartmama.database import SessionLocal
 from smartmama.schemas.auth import TokenData
 
 header_scheme = APIKeyHeader(name="token", auto_error=False)

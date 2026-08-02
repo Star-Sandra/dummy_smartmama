@@ -3,7 +3,7 @@ SQLAlchemy model for the Mother entity.
 """
 
 from sqlalchemy import Column, String, Integer, Date, Boolean, ForeignKey
-from database import Base
+from smartmama.database import Base
 
 
 class Mother(Base):
