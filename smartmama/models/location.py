@@ -3,7 +3,7 @@ SQLAlchemy model for the Location entity.
 """
 
 from sqlalchemy import Column, String, Numeric
-from database import Base
+from smartmama.database import Base
 
 
 class Location(Base):

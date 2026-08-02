@@ -4,7 +4,7 @@ SQLAlchemy model for the Community Health Volunteer (CHV) entity.
 
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, Boolean, DateTime
-from database import Base
+from smartmama.database import Base
 
 class CHV(Base):
     __tablename__ = "chv"
