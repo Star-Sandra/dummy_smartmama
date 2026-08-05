@@ -1,23 +1,26 @@
-"""
-SQLAlchemy model for the Community Health Volunteer (CHV) entity.
-"""
+import uuid
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    String,
+)
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 
-from datetime import datetime
-from sqlalchemy import Column, String, Integer, Boolean, DateTime
 from database import Base
 
 class CHV(Base):
-    __tablename__ = "chv"
+    __tablename__ = "chvs"
 
-    chv_id = Column(String(20), primary_key=True, index=True)
-    national_id = Column(Integer, nullable=False)
+    chv_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
-    phone_number = Column(String(12), unique=True, nullable=False)
+    phone_number = Column(String(12), unique=True, nullable=True)
     email = Column(String(255), unique=True, nullable=False)
-    hashed_password = Column(String(255), nullable=False)
+    hashed_password = Column(String(255), nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    def __repr__(self) -> str:
-        return f"<CHV {self.chv_id}: {self.first_name} {self.last_name}>"
+    mothers = relationship("Mother", back_populates="chv")

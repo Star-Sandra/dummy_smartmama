@@ -1,46 +1,36 @@
-"""
-Repository layer for CHV database operations.
-"""
-
 from sqlalchemy.orm import Session
-from smartmama.models.chv import CHV
-from typing import List
+from models.chv import CHV
 
-def get_chv_by_id(db: Session, chv_id: str) -> CHV | None:
-    return db.query(CHV).filter(CHV.chv_id == chv_id).first()
+class CHVRepository:
+    def __init__(self):
+        self.model = CHV
 
+    def get(self, db: Session, id:str):
+        return db.get(CHV, id)
 
-def get_chv_by_email(db: Session, email: str) -> CHV | None:
-    return db.query(CHV).filter(CHV.email == email).first()
+    def get_by_email(self, db: Session, email: str):
+        return db.query(CHV).filter(CHV.email == email).first()
 
+    def get_all(self, db: Session):
+        return db.query(CHV).all()
 
-def create_chv(db: Session, chv_obj: CHV) -> CHV:
-    db.add(chv_obj)
-    db.commit()
-    db.refresh(chv_obj)
-    return chv_obj
+    def create(self, db: Session, data: dict):
+        obj = CHV(**data)
+        db.add(obj)
+        db.commit()
+        db.refresh(obj)
+        return obj
 
-def get_all_chvs(db: Session, skip: int = 0, limit: int = 100) -> List[CHV]:
-    """
-    Retrieve multiple CHV profiles with pagination.
-    """
-    return db.query(CHV).offset(skip).limit(limit).all()
+    def update(self, db: Session, db_obj: CHV, data: dict):
+        for field, value in data.items():
+            setattr(db_obj, field, value)
 
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
 
-def update_chv_record(db: Session, db_chv: CHV, update_data: dict) -> CHV:
-    """
-    Modify values to an existing database instance.
-    """
-    for key, value in update_data.items():
-        setattr(db_chv, key, value)
-    db.commit()
-    db.refresh(db_chv)
-    return db_chv
+    def delete(self, db: Session, db_obj: CHV):
+        db.delete(db_obj)
+        db.commit()
 
-
-def delete_chv_record(db: Session, db_chv: CHV) -> None:
-    """
-    Permanently delete a CHV record from the database.
-    """
-    db.delete(db_chv)
-    db.commit()
+chv_repository = CHVRepository()

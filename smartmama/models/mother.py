@@ -1,24 +1,26 @@
-"""
-SQLAlchemy model for the Mother entity.
-"""
+import uuid
 
-from sqlalchemy import Column, String, Integer, Date, Boolean, ForeignKey
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, String, ForeignKey, func
+from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
 from database import Base
 
 
 class Mother(Base):
     __tablename__ = "mothers"
 
-    mother_id = Column(String(20), primary_key=True, index=True)
-    chv_id = Column(String(20), ForeignKey("chv.chv_id"), nullable=False)
-    location_id = Column(String(20), ForeignKey("location.location_id"), nullable=False)
-    national_id = Column(Integer, unique=True, nullable=True)  # Nullable if mother lacks an ID card
+    mother_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    chv_id = Column(ForeignKey("chvs.chv_id"), nullable=False)
+    location_id = Column(ForeignKey("location.location_id"), nullable=False)
     first_name = Column(String(50), nullable=False)
     last_name = Column(String(50), nullable=False)
-    phone_number = Column(String(12), unique=True, nullable=False)
+    phone_number = Column(String(12), nullable=False)
     date_of_birth = Column(Date, nullable=False)
+    expected_delivery_date=Column(Date, nullable=False)
     hashed_pin = Column(String(255), nullable=False)
-    consent_given = Column(Boolean, default=False, nullable=False)
+    consent_given = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(),nullable=False)
 
-    def __repr__(self) -> str:
-        return f"<Mother {self.mother_id}: {self.first_name} {self.last_name}>"
+    chv = relationship("CHV", back_populates="mothers")
+    # location = relationship("Location", back_populates="mothers")
